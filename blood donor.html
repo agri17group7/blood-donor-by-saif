@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blood Management & Donor Finder</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #ff4d4d, #ff9999);
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    header {
+      text-align: center;
+      padding: 20px;
+      color: white;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    form input, form select, form button {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    form button {
+      grid-column: span 2;
+      background: #ff4d4d;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    form button:hover {
+      background: #cc0000;
+    }
+    .search-box {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .search-box input, .search-box select {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin: 5px;
+      font-size: 14px;
+    }
+    .donor-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+    }
+    .donor-card {
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      transition: 0.3s;
+    }
+    .donor-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+    .donor-card h3 {
+      margin: 0;
+      color: #ff3333;
+    }
+    .call-btn {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: #ff4d4d;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+    .call-btn:hover {
+      background: #cc0000;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🩸 Blood Management & Donor Finder</h1>
+    <p>Register as a donor or find blood donors instantly</p>
+  </header>
+
+  <div class="container">
+
+    <!-- Donor Registration Form -->
+    <h2>Donor Registration</h2>
+    <form id="donorForm">
+      <input type="text" id="name" placeholder="Full Name" required>
+      <input type="text" id="department" placeholder="Department" required>
+      <select id="bloodGroup" required>
+        <option value="">Select Blood Group</option>
+        <option>A+</option><option>A-</option>
+        <option>B+</option><option>B-</option>
+        <option>AB+</option><option>AB-</option>
+        <option>O+</option><option>O-</option>
+      </select>
+      <input type="tel" id="phone" placeholder="Phone Number" required>
+      <button type="submit">Add Donor</button>
+    </form>
+
+    <!-- Search Section -->
+    <div class="search-box">
+      <h2>Search Donors</h2>
+      <input type="text" id="searchDepartment" placeholder="Enter Department">
+      <select id="searchBlood">
+        <option value="">Select Blood Group</option>
+        <option>A+</option><option>A-</option>
+        <option>B+</option><option>B-</option>
+        <option>AB+</option><option>AB-</option>
+        <option>O+</option><option>O-</option>
+      </select>
+      <button onclick="searchDonors()">Search</button>
+    </div>
+
+    <!-- Donor List -->
+    <h2>Donor List</h2>
+    <div class="donor-list" id="donorList"></div>
+
+  </div>
+
+<script>
+  let donors = JSON.parse(localStorage.getItem("donors")) || [];
+
+  // Render Donors
+  function renderDonors(list = donors) {
+    const donorList = document.getElementById("donorList");
+    donorList.innerHTML = "";
+    list.forEach((donor, index) => {
+      donorList.innerHTML += `
+        <div class="donor-card">
+          <h3>${donor.name}</h3>
+          <p><b>Dept:</b> ${donor.department}</p>
+          <p><b>Blood:</b> ${donor.bloodGroup}</p>
+          <p><b>Phone:</b> ${donor.phone}</p>
+          <a href="tel:${donor.phone}" class="call-btn">📞 Call Now</a>
+        </div>
+      `;
+    });
+  }
+
+  // Add Donor
+  document.getElementById("donorForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const donor = {
+      name: document.getElementById("name").value,
+      department: document.getElementById("department").value,
+      bloodGroup: document.getElementById("bloodGroup").value,
+      phone: document.getElementById("phone").value
+    };
+    donors.push(donor);
+    localStorage.setItem("donors", JSON.stringify(donors));
+    renderDonors();
+    this.reset();
+  });
+
+  // Search Donors
+  function searchDonors() {
+    const dept = document.getElementById("searchDepartment").value.toLowerCase();
+    const blood = document.getElementById("searchBlood").value;
+    const filtered = donors.filter(d => 
+      (dept === "" || d.department.toLowerCase().includes(dept)) &&
+      (blood === "" || d.bloodGroup === blood)
+    );
+    renderDonors(filtered);
+  }
+
+  // Initial render
+  renderDonors();
+</script>
+
+</body>
+</html>
